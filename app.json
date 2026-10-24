@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "轻拍",
+    "slug": "cheap-cap",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "web": {
+      "output": "single",
+      "bundler": "metro"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cheapcap.app"
+    },
+    "android": {
+      "package": "com.cheapcap.app",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "允许轻拍使用相机拍摄并压缩照片。",
+          "photosPermission": "允许轻拍选择照片进行压缩。",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "允许轻拍访问照片。",
+          "savePhotosPermission": "允许轻拍将压缩照片保存到相册。",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b2cd2ba4-ba83-4407-9a56-fb49568cb82a"
+      }
+    },
+    "owner": "zzz6519003"
+  }
+}
