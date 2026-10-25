@@ -76,7 +76,8 @@ export default function App() {
         Alert.alert('未删除原照片', '需要相册修改权限才能删除原照片。');
         return;
       }
-      await MediaLibrary.deleteAssetsAsync([assetId]);
+      const deleted = await MediaLibrary.deleteAssetsAsync([assetId]);
+      if (!deleted) throw new Error('系统未确认删除这张照片。');
       setOriginalDeleted(true);
       Alert.alert('原照片已删除', '原照片已从系统相册删除。');
     } catch (error) {
