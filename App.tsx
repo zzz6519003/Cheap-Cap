@@ -8,7 +8,7 @@ import * as Sharing from 'expo-sharing';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 type Format = 'JPEG' | 'WEBP';
-type Photo = { uri: string; size?: number; width: number; height: number };
+type Photo = { uri: string; size?: number; width: number; height: number; assetId?: string | null };
 const qualities = [{ label: '清晰优先', value: 0.8 }, { label: '均衡', value: 0.6 }, { label: '更小体积', value: 0.4 }];
 const sizeText = (n?: number) => n == null ? '未知' : n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(2)} MB`;
 
@@ -19,13 +19,14 @@ export default function App() {
   const [result, setResult] = useState<Photo | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [originalDeleted, setOriginalDeleted] = useState(false);
   const [resultFormat, setResultFormat] = useState<Format>('JPEG');
 
   async function compress(asset: ImagePicker.ImagePickerAsset, chosenFormat = format, chosenQuality = quality) {
-    setBusy(true); setResult(null); setSaved(false);
+    setBusy(true); setResult(null); setSaved(false); setOriginalDeleted(false);
     try {
       const input = await FileSystem.getInfoAsync(asset.uri);
-      setOriginal({ uri: asset.uri, size: asset.fileSize ?? (input.exists ? input.size : undefined), width: asset.width, height: asset.height });
+      setOriginal({ uri: asset.uri, size: asset.fileSize ?? (input.exists ? input.size : undefined), width: asset.width, height: asset.height, assetId: asset.assetId });
       const output = await ImageManipulator.manipulateAsync(asset.uri, [], { compress: chosenQuality, format: chosenFormat === 'JPEG' ? ImageManipulator.SaveFormat.JPEG : ImageManipulator.SaveFormat.WEBP });
       const info = await FileSystem.getInfoAsync(output.uri);
       setResult({ uri: output.uri, size: info.exists ? info.size : undefined, width: output.width, height: output.height });
@@ -53,9 +54,33 @@ export default function App() {
       if (!permission.granted) { Alert.alert('需要相册权限', '请在手机设置中允许添加照片到相册。'); return; }
       await MediaLibrary.saveToLibraryAsync(result.uri);
       setSaved(true);
-      Alert.alert('已保存', '压缩后的照片已保存到系统相册。');
+      if (original?.assetId) {
+        Alert.alert('已保存', '压缩后的照片已保存到系统相册。是否删除手机里的原照片？', [
+          { text: '保留原照片', style: 'cancel' },
+          { text: '删除原照片', style: 'destructive', onPress: deleteOriginal },
+        ]);
+      } else {
+        Alert.alert('已保存', '压缩后的照片已保存到系统相册。当前照片没有可删除的原图记录。');
+      }
     } catch (error) {
       Alert.alert('保存失败', resultFormat === 'WEBP' ? '此设备可能不支持将 WebP 保存到相册。你可以分享或保存到文件，也可以使用 JPEG 重新拍摄。' : (error instanceof Error ? error.message : '请重试。'));
+    } finally { setBusy(false); }
+  }
+  async function deleteOriginal() {
+    const assetId = original?.assetId;
+    if (!assetId) return;
+    setBusy(true);
+    try {
+      const permission = await MediaLibrary.requestPermissionsAsync(false, ['photo']);
+      if (!permission.granted) {
+        Alert.alert('未删除原照片', '需要相册修改权限才能删除原照片。');
+        return;
+      }
+      await MediaLibrary.deleteAssetsAsync([assetId]);
+      setOriginalDeleted(true);
+      Alert.alert('原照片已删除', '原照片已从系统相册删除。');
+    } catch (error) {
+      Alert.alert('删除失败', error instanceof Error ? error.message : '系统没有允许删除这张照片，请在相册中手动删除。');
     } finally { setBusy(false); }
   }
   async function share() {
@@ -85,7 +110,7 @@ export default function App() {
     <Pressable disabled={busy} onPress={() => select(true)} style={[styles.primary, busy && styles.disabled]}><Text style={styles.primaryText}>◎  拍照并压缩</Text></Pressable>
     <Pressable disabled={busy} onPress={() => select(false)} style={styles.secondary}><Text style={styles.secondaryText}>从相册选择照片  ↗</Text></Pressable>
     {busy && <View style={styles.loading}><ActivityIndicator color="#2e6956" /><Text style={styles.hint}>正在处理照片…</Text></View>}
-    {result && <View style={styles.resultCard}><View style={styles.sectionHead}><View><Text style={styles.sectionTitle}>压缩完成</Text><Text style={styles.small}>预览后保存或分享</Text></View><Text style={styles.resultTag}>{resultFormat}</Text></View><Image source={{ uri: result.uri }} style={styles.preview} resizeMode="cover" /><View style={styles.stats}><View><Text style={styles.statLabel}>原照片</Text><Text style={styles.stat}>{sizeText(original?.size)}</Text></View><Text style={styles.arrow}>→</Text><View><Text style={styles.statLabel}>压缩后</Text><Text style={styles.stat}>{sizeText(result.size)}</Text></View><View style={styles.savedBox}><Text style={styles.savedText}>{saving == null ? '大小未知' : saving > 0 ? `减少 ${saving}%` : saving === 0 ? '大小相近' : `增大 ${-saving}%`}</Text></View></View><Pressable disabled={busy} onPress={save} style={styles.primary}><Text style={styles.primaryText}>{saved ? '再次保存到相册' : '保存到相册'}</Text></Pressable><Pressable disabled={busy} onPress={share} style={styles.shareButton}><Text style={styles.shareText}>分享照片</Text></Pressable><Text style={styles.hint}>{resultFormat === 'WEBP' ? 'WebP 相册兼容性因设备而异，也可通过分享菜单保存到文件。' : '相册中已有的原图不会被删除。拍摄的临时照片不会自动保留。'}</Text></View>}
+    {result && <View style={styles.resultCard}><View style={styles.sectionHead}><View><Text style={styles.sectionTitle}>压缩完成</Text><Text style={styles.small}>预览后保存或分享</Text></View><Text style={styles.resultTag}>{resultFormat}</Text></View><Image source={{ uri: result.uri }} style={styles.preview} resizeMode="cover" /><View style={styles.stats}><View><Text style={styles.statLabel}>原照片</Text><Text style={styles.stat}>{sizeText(original?.size)}</Text></View><Text style={styles.arrow}>→</Text><View><Text style={styles.statLabel}>压缩后</Text><Text style={styles.stat}>{sizeText(result.size)}</Text></View><View style={styles.savedBox}><Text style={styles.savedText}>{saving == null ? '大小未知' : saving > 0 ? `减少 ${saving}%` : saving === 0 ? '大小相近' : `增大 ${-saving}%`}</Text></View></View><Pressable disabled={busy} onPress={save} style={styles.primary}><Text style={styles.primaryText}>{saved ? '再次保存到相册' : '保存到相册'}</Text></Pressable><Pressable disabled={busy} onPress={share} style={styles.shareButton}><Text style={styles.shareText}>分享照片</Text></Pressable><Text style={styles.hint}>{originalDeleted ? '原照片已删除，压缩后的照片已保留在系统相册。' : resultFormat === 'WEBP' ? 'WebP 相册兼容性因设备而异，也可通过分享菜单保存到文件。保存成功后会询问是否删除原照片。' : '压缩照片保存成功后，会询问是否删除手机里的原照片。你可以选择保留。'}</Text></View>}
     <Text style={styles.footer}>✳  照片只在你的设备上处理</Text>
   </ScrollView></SafeAreaView></SafeAreaProvider>;
 }
