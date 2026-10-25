@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 execFileSync('npx', ['expo', 'export', '--platform', 'web'], { stdio: 'inherit' });
 
@@ -21,3 +21,19 @@ const pwaHead = `
 if (!html.includes('rel="manifest"')) {
   writeFileSync(htmlPath, html.replace('</head>', `${pwaHead}\n  </head>`));
 }
+
+function listFiles(directory, prefix = '') {
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const relativePath = `${prefix}${entry.name}`;
+    const absolutePath = `${directory}/${entry.name}`;
+    return entry.isDirectory() ? listFiles(absolutePath, `${relativePath}/`) : [`./${relativePath}`];
+  });
+}
+
+const swPath = 'dist/sw.js';
+const precacheFiles = listFiles('dist').filter(file => file !== './sw.js');
+const serviceWorker = readFileSync(swPath, 'utf8').replace(
+  'const PRECACHE_FILES = null;',
+  `const PRECACHE_FILES = ${JSON.stringify(precacheFiles)};`
+);
+writeFileSync(swPath, serviceWorker);
