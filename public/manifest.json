@@ -1,0 +1,25 @@
+{
+  "name": "轻拍照片压缩",
+  "short_name": "轻拍",
+  "description": "在设备上压缩照片，节省手机存储空间。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#f6f7f1",
+  "background_color": "#f6f7f1",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

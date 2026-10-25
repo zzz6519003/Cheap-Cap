@@ -7,7 +7,15 @@
     "userInterfaceStyle": "light",
     "web": {
       "output": "single",
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./public/icons/icon-192.png",
+      "name": "轻拍照片压缩",
+      "shortName": "轻拍",
+      "display": "standalone",
+      "startUrl": "./",
+      "orientation": "portrait",
+      "themeColor": "#f6f7f1",
+      "backgroundColor": "#f6f7f1"
     },
     "ios": {
       "supportsTablet": true,
