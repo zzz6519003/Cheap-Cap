@@ -1,5 +1,15 @@
-const CACHE_NAME = 'qingpai-pwa-v2';
+const CACHE_NAME = 'qingpai-pwa-v3';
 const PRECACHE_FILES = null;
+
+async function updateCache(request) {
+  const response = await fetch(request);
+  if (response.ok) {
+    const copy = response.clone();
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, copy);
+  }
+  return response;
+}
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -21,23 +31,23 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
 
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match('./'))
-    );
+    event.respondWith((async () => {
+      const cached = await caches.match(event.request) || await caches.match('./index.html') || await caches.match('./');
+      if (cached) {
+        event.waitUntil(updateCache(event.request).catch(() => undefined));
+        return cached;
+      }
+      return updateCache(event.request);
+    })());
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-      return response;
-    }))
-  );
+  event.respondWith((async () => {
+    const cached = await caches.match(event.request);
+    if (cached) {
+      event.waitUntil(updateCache(event.request).catch(() => undefined));
+      return cached;
+    }
+    return updateCache(event.request);
+  })());
 });
