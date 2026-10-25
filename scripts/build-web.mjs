@@ -14,7 +14,7 @@ const pwaHead = `
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => undefined);
       }
     </script>`;
 
