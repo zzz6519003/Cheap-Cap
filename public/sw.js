@@ -1,9 +1,10 @@
-const CACHE_NAME = 'qingpai-pwa-v1';
+const CACHE_NAME = 'qingpai-pwa-v2';
+const PRECACHE_FILES = null;
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(['./', './manifest.json', './icons/icon-192.png', './icons/icon-512.png']))
+      .then(cache => cache.addAll(PRECACHE_FILES || ['./', './manifest.json', './icons/icon-192.png', './icons/icon-512.png']))
       .then(() => self.skipWaiting())
   );
 });
