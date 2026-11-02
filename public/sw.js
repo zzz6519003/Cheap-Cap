@@ -1,4 +1,4 @@
-const CACHE_NAME = 'qingpai-pwa-v3';
+const CACHE_NAME = 'qingpai-pwa-v4';
 const PRECACHE_FILES = null;
 
 async function updateCache(request) {
@@ -32,12 +32,11 @@ self.addEventListener('fetch', event => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
-      const cached = await caches.match(event.request) || await caches.match('./index.html') || await caches.match('./');
-      if (cached) {
-        event.waitUntil(updateCache(event.request).catch(() => undefined));
-        return cached;
+      try {
+        return await updateCache(event.request);
+      } catch {
+        return await caches.match(event.request) || await caches.match('./index.html') || await caches.match('./');
       }
-      return updateCache(event.request);
     })());
     return;
   }
