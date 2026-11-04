@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { centeredCrop, clamp, encodeSmallestPhoto, moveCrop, resizeCrop, zoomCrop, type Corner, type Crop, type Point } from '../utils/photo-editor';
+import { Localized } from '../utils/i18n';
 
 type Ratio = 'free' | 'original' | '1:1' | '4:3' | '16:9';
 type Sticker = { id: number; emoji: string; x: number; y: number; size: number };
@@ -223,7 +224,7 @@ export default function PhotoEditor() {
   }
 
   const selected = stickers.find(item => item.id === selectedSticker);
-  return <div className="editor-layout"><div className="card editor-card">
+  return <Localized><div className="editor-layout"><div className="card editor-card">
     <div className="card-head"><div><div className="step">PHOTO EDITOR</div><h2>编辑照片</h2></div><span className="head-icon">✿</span></div>
     <input ref={fileInput} type="file" accept="image/*" hidden disabled={busy || loading} onChange={event => { void loadPhoto(event.target.files?.[0]); event.target.value = ''; }} />
     {!photo ? <button className="editor-upload" disabled={loading} onClick={() => fileInput.current?.click()}><span className="upload-icon">↑</span><strong>{loading ? '正在读取照片…' : '选择一张照片开始编辑'}</strong><small>手势裁剪、调整色彩、缩放贴纸</small></button> : <>
@@ -272,5 +273,5 @@ export default function PhotoEditor() {
       {output && <><a className="download" href={output.url} download={output.name}>保存到本地 · {output.format} · {sizeText(output.size)} <span>↓</span></a><p className="editor-success" role="status">原图 {sizeText(photo.file.size)} → {sizeText(output.size)}{output.size < photo.file.size ? ` · 减少 ${Math.round((1 - output.size / photo.file.size) * 100)}%` : ' · 编辑后的内容可能增加体积'}</p></>}
     </>}
     {error && <p className="error" role="alert">{error}</p>}
-  </div></div>;
+  </div></div></Localized>;
 }

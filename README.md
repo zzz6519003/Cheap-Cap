@@ -1,6 +1,12 @@
 # 轻拍
 
+[English](README.en.md)
+
 一个使用 Expo / React Native 构建的照片压缩应用，支持 Android、iOS 和 Web。拍摄或选择照片后在设备上压缩，显示原文件及结果的大小，用户可将压缩照片保存到系统相册，或通过系统分享菜单分享。
+
+## 语言
+
+应用界面支持简体中文和 English，默认使用 English；在应用顶部点击语言按钮即可切换为简体中文或切回 English。翻译词条集中维护在 `utils/i18n.tsx`。
 
 ## 运行
 
