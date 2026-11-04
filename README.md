@@ -25,4 +25,14 @@ npx expo start
 
 在项目目录运行 `npm install` 后，执行 `npm run web`，在浏览器中打开终端显示的地址。生产构建使用 `npm run build:web`，它会生成 Web 导出文件、PWA manifest 和离线 Service Worker 到 `dist/`，然后可用 `eas deploy` 部署。
 
+向 GitHub 的 `main` 分支推送代码时，会由 Actions 自动构建 Web / PWA 并发布到 Expo Hosting 生产环境。首次启用前，在 [Expo 账户设置](https://expo.dev/accounts/zzz6519003/settings/access-tokens)创建 Access Token，再将它保存为 GitHub 仓库的 `EXPO_TOKEN` Actions secret。也可以在 Actions 页面手动运行 `Deploy web` 工作流。
+
 选择或拖入多张图片，设置格式和压缩程度，点击「压缩照片」后可分别预览并下载结果。图片只在浏览器中处理，不会上传；JPEG 会将透明区域填充为白色。浏览器对图片格式和大尺寸图片的支持可能不同，转换可能不保留元数据，动画仅处理静态画面。Android Chrome 支持通过「安装到桌面」安装；iPhone 请在 Safari 分享菜单选择「添加到主屏幕」。安装后首次打开过页面即可离线压缩，浏览器版不能删除手机相册里的原照片。
+
+### 照片编辑（Web / PWA）
+
+在「照片编辑」中选择照片，拖动裁剪框移动选区，拖动四角调整大小；支持自由比例和固定比例。点击「完成裁剪」预览后，可以拖动照片取景、双指缩放。添加贴纸后，拖动贴纸移动位置，双指捏合或拖动选中贴纸右下角缩放，也可使用大小滑块和删除按钮。
+
+「生成精简照片」会以 72% 编码质量分别尝试 JPEG、WebP，选择实际文件体积较小且浏览器支持的格式；不支持 WebP 时使用 JPEG，不再导出 PNG。最长边限制为 2560 像素，不放大小图，透明区域填白。下载按钮显示实际格式和大小，任何后续编辑都会使旧下载结果失效，需要重新生成。压缩有损，编辑后的体积仍取决于图片内容。
+
+编辑逻辑回归测试：`node --test scripts/test-photo-editor.mjs`（Node.js 22.18 或更新版本）。
