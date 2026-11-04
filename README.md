@@ -1,44 +1,44 @@
-# 轻拍
+# SnapLite
 
-[English](README.en.md)
+[简体中文](README.zh-CN.md)
 
-一个使用 Expo / React Native 构建的照片压缩应用，支持 Android、iOS 和 Web。拍摄或选择照片后在设备上压缩，显示原文件及结果的大小，用户可将压缩照片保存到系统相册，或通过系统分享菜单分享。
+A photo compression app built with Expo and React Native for Android, iOS, and the web. Compress photos on your device, compare original and output sizes, then save the compressed image to your photo library or share it using the system share sheet.
 
-## 语言
+## Languages
 
-应用界面支持简体中文和 English，默认使用 English；在应用顶部点击语言按钮即可切换为简体中文或切回 English。翻译词条集中维护在 `utils/i18n.tsx`。
+The app supports Simplified Chinese and English, with English as the default. Use the language button at the top of the app to switch to Simplified Chinese or back to English. Translation strings are maintained in `utils/i18n.tsx`.
 
-## 运行
+## Run the app
 
-需要 Node.js、npm 和手机上的 Expo Go：
+Requires Node.js, npm, and Expo Go on your phone:
 
 ```sh
 npm install
 npx expo start
 ```
 
-手机与电脑连接同一网络，使用 Expo Go 扫描终端中的二维码。iPhone 可使用系统相机扫描二维码。拍照和系统相册保存需要在真实设备上测试，并授予相应权限。
+Connect your phone and computer to the same network, then scan the QR code shown in the terminal with Expo Go. On iPhone, you can scan the code with the Camera app. Test camera capture and photo library saving on a real device and grant the requested permissions.
 
-## 使用说明
+## Usage
 
-1. 选择 JPEG / WebP 和压缩程度，点击「拍照并压缩」或从相册选择照片；原生版和 Web 版都支持一次选择多张。
-2. 查看结果的体积，再选择保存到相册或分享。WebP 也可以在分享菜单中保存到文件。
-3. 设置更改只应用于下一张照片。压缩结果临时存放在应用缓存中，未保存的结果可能被系统清理。
+1. Choose JPEG or WebP and a compression level, then tap **Take photo** or choose photos from your library. The native and web versions both support selecting multiple photos.
+2. Review the output size, then save the result to your library or share it. WebP can also be saved to Files from the share sheet.
+3. Settings apply to the next batch of photos. Results are temporarily stored in the app cache and may be removed by the system if they have not been saved.
 
-原生 App 在压缩照片成功保存到系统相册后，会询问是否删除原照片；用户可以保留。拍摄时的临时原图不会自动保存。压缩是有损的，照片大小不保证一定变小；转换可能不保留原始元数据（包括位置信息），动态照片和动画仅处理静态图。系统相册对 WebP 的支持因设备而异，WebP 保存到相册失败时可以通过分享菜单保存到文件。多张照片按顺序压缩，不支持后台处理。
+After a photo is successfully saved to the system library, the native app asks whether to delete the original; you can keep it. A temporary original captured by the camera is not saved automatically. Compression is lossy and does not guarantee a smaller file. Conversion may not preserve original metadata, including location information. Live Photos and animations are processed as still images. WebP library support varies by device; if saving a WebP image to the library fails, use the share sheet to save it to Files. Multiple photos are compressed in order, without background processing.
 
-## Web 版
+## Web version
 
-在项目目录运行 `npm install` 后，执行 `npm run web`，在浏览器中打开终端显示的地址。生产构建使用 `npm run build:web`，它会生成 Web 导出文件、PWA manifest 和离线 Service Worker 到 `dist/`，然后可用 `eas deploy` 部署。
+From the project directory, run `npm install`, then `npm run web` and open the address shown in the terminal. For a production build, run `npm run build:web`. This generates the web export, PWA manifest, and offline Service Worker in `dist/`, which can then be deployed with `eas deploy`.
 
-向 GitHub 的 `main` 分支推送代码时，会由 Actions 自动构建 Web / PWA 并发布到 Expo Hosting 生产环境。首次启用前，在 [Expo 账户设置](https://expo.dev/accounts/zzz6519003/settings/access-tokens)创建 Access Token，再将它保存为 GitHub 仓库的 `EXPO_TOKEN` Actions secret。也可以在 Actions 页面手动运行 `Deploy web` 工作流。
+When code is pushed to the GitHub `main` branch, Actions automatically builds the Web/PWA version and publishes it to Expo Hosting production. To enable this for the first time, create an Access Token in [Expo account settings](https://expo.dev/accounts/zzz6519003/settings/access-tokens) and save it as the `EXPO_TOKEN` Actions secret in the GitHub repository. You can also run the `Deploy web` workflow manually from the Actions page.
 
-选择或拖入多张图片，设置格式和压缩程度，点击「压缩照片」后可分别预览并下载结果。图片只在浏览器中处理，不会上传；JPEG 会将透明区域填充为白色。浏览器对图片格式和大尺寸图片的支持可能不同，转换可能不保留元数据，动画仅处理静态画面。Android Chrome 支持通过「安装到桌面」安装；iPhone 请在 Safari 分享菜单选择「添加到主屏幕」。安装后首次打开过页面即可离线压缩，浏览器版不能删除手机相册里的原照片。
+Choose or drag in multiple images, select a format and compression level, then tap **Compress photos** to preview and download each result. Images are processed in the browser and are not uploaded. Transparent areas are filled with white when converting to JPEG. Browser support for image formats and large images may vary. Conversion may not preserve metadata, and animations are processed as still images. Android Chrome supports installation through **Install app**. On iPhone, use **Add to Home Screen** from Safari's share menu. After opening the installed app once, photo compression is available offline. The browser version cannot delete original photos from the phone's library.
 
-### 照片编辑（Web / PWA）
+### Photo editor (Web/PWA)
 
-在「照片编辑」中选择照片，拖动裁剪框移动选区，拖动四角调整大小；支持自由比例和固定比例。点击「完成裁剪」预览后，可以拖动照片取景、双指缩放。添加贴纸后，拖动贴纸移动位置，双指捏合或拖动选中贴纸右下角缩放，也可使用大小滑块和删除按钮。
+In **Edit**, choose a photo. Drag the crop frame to move the selection and drag its corners to resize it. Free and fixed aspect ratios are available. Tap **Done cropping** to preview, then drag the photo to adjust framing or pinch to zoom. After adding a sticker, drag it to move it; pinch with two fingers or drag the selected sticker's lower-right handle to resize it. You can also use the size slider and delete button.
 
-「生成精简照片」会以 72% 编码质量分别尝试 JPEG、WebP，选择实际文件体积较小且浏览器支持的格式；不支持 WebP 时使用 JPEG，不再导出 PNG。最长边限制为 2560 像素，不放大小图，透明区域填白。下载按钮显示实际格式和大小，任何后续编辑都会使旧下载结果失效，需要重新生成。压缩有损，编辑后的体积仍取决于图片内容。
+**Export optimized photo** tries JPEG and WebP at 72% quality and selects the supported format with the smaller actual file size. If WebP is unsupported, it uses JPEG; PNG is not exported. The maximum edge is 2560 pixels, small images are not enlarged, and transparent areas are filled with white. The download button shows the actual format and file size. Any further edit invalidates the previous export, so generate it again. Compression is lossy, and the edited file size depends on the image content.
 
-编辑逻辑回归测试：`node --test scripts/test-photo-editor.mjs`（Node.js 22.18 或更新版本）。
+To run regression checks for the editing logic, use `node --test scripts/test-photo-editor.mjs` (Node.js 22.18 or newer).
